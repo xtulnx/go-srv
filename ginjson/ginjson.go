@@ -1,4 +1,4 @@
-package jsonkit
+package ginjson
 
 import (
 	"bytes"
@@ -22,21 +22,21 @@ func Init() {
 }
 
 var (
-	json = jsoniter.ConfigCompatibleWithStandardLibrary
+	jsonLib = jsoniter.ConfigCompatibleWithStandardLibrary
 	// Marshal is exported by gin/json package.
-	Marshal = json.Marshal
+	Marshal = jsonLib.Marshal
 	// Unmarshal is exported by gin/json package.
-	Unmarshal = json.Unmarshal
+	Unmarshal = jsonLib.Unmarshal
 	// MarshalIndent is exported by gin/json package.
-	MarshalIndent = json.MarshalIndent
+	MarshalIndent = jsonLib.MarshalIndent
 	// NewDecoder is exported by gin/json package.
-	NewDecoder = json.NewDecoder
+	NewDecoder = jsonLib.NewDecoder
 	// NewEncoder is exported by gin/json package.
-	NewEncoder = json.NewEncoder
+	NewEncoder = jsonLib.NewEncoder
 )
 
 // BindingJSON 替换Gin默认的binding，支持更丰富JSON功能
-var BindingJSON = jsonBinding{}
+var BindingJSON binding.Binding = jsonBinding{}
 
 type jsonBinding struct{}
 
@@ -44,14 +44,14 @@ func (jsonBinding) Name() string {
 	return "json"
 }
 
-func (jsonBinding) Bind(req *http.Request, obj interface{}) error {
+func (jsonBinding) Bind(req *http.Request, obj any) error {
 	if req == nil || req.Body == nil {
 		return fmt.Errorf("invalid request")
 	}
 	return decodeJSON(req.Body, obj)
 }
 
-func (jsonBinding) BindBody(body []byte, obj interface{}) error {
+func (jsonBinding) BindBody(body []byte, obj any) error {
 	return decodeJSON(bytes.NewReader(body), obj)
 }
 
